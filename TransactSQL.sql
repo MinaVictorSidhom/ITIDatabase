@@ -142,3 +142,70 @@ where DR=1
 select * from(select *,Ntile(2) over (partition by dept_id 
 order by st_id desc) as G
 from Student) as newtable
+
+
+-- Windowing 
+-- LEAD     LAG
+
+select s.st_id as sid,st_fname as sname,grade,crs_name as Cname
+into grades
+from student s,Stud_Course sc,Course c
+where s.St_Id=sc.St_Id and sc.Crs_Id=c.Crs_Id
+
+
+select sname,grade,
+	   _prev=LAG(grade) over(order by grade),
+	   _next=lead(grade) over(order by grade)
+from grades
+
+select sname,grade,
+	   _prev=LAG(sname) over(order by grade),
+	   _next=lead(sname) over(order by grade)
+from grades
+
+select sname,grade,Cname,
+	   _prev=LAG(grade) over(partition by Cname order by grade),
+	   _next=lead(grade) over(partition by Cname order by grade)
+from grades
+
+-- take a look in Last_value and First_Value Function
+--percent_ranK()
+
+
+
+--Merge Statement
+
+create table llast
+(
+	Lid int,
+	Lname varchar(10),
+	Lvalue int
+)
+
+create table Dailyl
+(
+	did int,
+	dname varchar(10),
+	dvalue int
+)
+
+
+merge into llast as T
+using Dailyl as S
+on T.Lid =S.did
+
+when Matched then
+	update set T.Lvalue=S.Dvalue
+
+when not matched then
+	insert
+	values(S.did,S.dname,S.dvalue)
+
+output $action ;
+
+
+-- take a look  in video that demostrates Rollup,cube and
+-- grouping sets
+
+
+-- PIVOT & UnPIVOT
